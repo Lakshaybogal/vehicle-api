@@ -2,7 +2,6 @@ from botocore.endpoint import uuid
 from fastapi import Request, FastAPI, File, UploadFile, Body, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-
 from boto3.dynamodb.conditions import Key, Attr
 import base64
 import boto3

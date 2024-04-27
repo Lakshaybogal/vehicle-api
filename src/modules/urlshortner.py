@@ -1,4 +1,3 @@
-from pydantic import BaseModel
 from os import getenv
 import shortid
 

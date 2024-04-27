@@ -35,11 +35,8 @@ async def upload_vehicle(
         file_content = await file_upload.read()
         encoded_image = base64.b64encode(file_content).decode('utf-8')
 
-        response = table.query(
-            Select='COUNT',
-            KeyConditionExpression=Key('vehicle_id').eq('vehicle_id')
-        )
-        vehicle_no = response['Count'] + 1
+        response = table.scan()
+        vehicle_no = len(response) + 1
         vehicle_id = str(uuid.uuid4())
 
         table.put_item(

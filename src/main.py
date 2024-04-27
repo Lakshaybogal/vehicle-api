@@ -8,7 +8,7 @@ import os
 from .db.main import get_db
 from .modules.urlshortner import shorten_url
 
-app = FastAPI()
+app = FastAPI(docs_url=None, redoc_url=None)
 table = get_db()
 origins = ["*"]
 app.add_middleware(

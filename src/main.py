@@ -1,5 +1,5 @@
 from botocore.endpoint import uuid
-from fastapi import Request, FastAPI, File, UploadFile, Body, HTTPException,Response
+from fastapi import Request, FastAPI, File, UploadFile, Body, HTTPException, Response
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from boto3.dynamodb.conditions import Key, Attr
@@ -51,15 +51,16 @@ async def upload_vehicle(
                 'image_type': image_type.lower()
             }
         )
-        return {"message": "File uploaded successfully",}
+        return {"message": "File uploaded successfully", "vehicle_id": vehicle_id}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/vehicle/all/")
 async def get_all_vehicles():
     try:
-        response = table.scan(ProjectionExpression="#vn, #vm, #vb, #vt, #it",
-                              ExpressionAttributeNames={"#vn": "vehicle_no",
+        response = table.scan(ProjectionExpression="#vi, #vn, #vm, #vb, #vt, #it",
+                              ExpressionAttributeNames={"#vi": "vehicle_id",
+                                                        "#vn": "vehicle_no",
                                                         "#vm": "vehicle_model",
                                                         "#vb": "vehicle_brand",
                                                         "#vt": "vehicle_type",
@@ -73,8 +74,9 @@ async def get_all_vehicles():
 async def get_vehicle_by_id(vehicle_id: str):
     try:
         response = table.get_item(Key={'vehicle_id': vehicle_id},
-                                  ProjectionExpression="#vn, #vm, #vb, #vt, #it",
-                                  ExpressionAttributeNames={"#vn": "vehicle_no",
+                                  ProjectionExpression="#vi, #vn, #vm, #vb, #vt, #it",
+                                  ExpressionAttributeNames={"#vi": "vehicle_id",
+                                                            "#vn": "vehicle_no",
                                                             "#vm": "vehicle_model",
                                                             "#vb": "vehicle_brand",
                                                             "#vt": "vehicle_type",
@@ -87,8 +89,9 @@ async def get_vehicle_by_id(vehicle_id: str):
 async def get_vehicles_by_brand(brand: str):
     try:
         response = table.scan(FilterExpression=Attr('vehicle_brand').begins_with(brand.lower()),
-                              ProjectionExpression="#vn, #vm, #vb, #vt, #it",
-                              ExpressionAttributeNames={"#vn": "vehicle_no",
+                              ProjectionExpression="#vi, #vn, #vm, #vb, #vt, #it",
+                              ExpressionAttributeNames={"#vi": "vehicle_id",
+                                                        "#vn": "vehicle_no",
                                                         "#vm": "vehicle_model",
                                                         "#vb": "vehicle_brand",
                                                         "#vt": "vehicle_type",
@@ -101,8 +104,9 @@ async def get_vehicles_by_brand(brand: str):
 async def get_vehicles_by_type(vehicle_type: str):
     try:
         response = table.scan(FilterExpression=Key('vehicle_type').eq(vehicle_type.lower()),
-                              ProjectionExpression="#vn, #vm, #vb, #vt, #it",
-                              ExpressionAttributeNames={"#vn": "vehicle_no",
+                              ProjectionExpression="#vi, #vn, #vm, #vb, #vt, #it",
+                              ExpressionAttributeNames={"#vi": "vehicle_id",
+                                                        "#vn": "vehicle_no",
                                                         "#vm": "vehicle_model",
                                                         "#vb": "vehicle_brand",
                                                         "#vt": "vehicle_type",
@@ -115,8 +119,9 @@ async def get_vehicles_by_type(vehicle_type: str):
 async def search_vehicles_by_name(vehicle_model: str):
     try:
         response = table.scan(FilterExpression=Attr('vehicle_model').begins_with(vehicle_model.lower()),
-                              ProjectionExpression="#vn, #vm, #vb, #vt, #it",
-                              ExpressionAttributeNames={"#vn": "vehicle_no",
+                              ProjectionExpression="#vi, #vn, #vm, #vb, #vt, #it",
+                              ExpressionAttributeNames={"#vi": "vehicle_id",
+                                                        "#vn": "vehicle_no",
                                                         "#vm": "vehicle_model",
                                                         "#vb": "vehicle_brand",
                                                         "#vt": "vehicle_type",

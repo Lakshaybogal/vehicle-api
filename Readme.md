@@ -1,7 +1,3 @@
-Sure, here's an API documentation for all the endpoints in your FastAPI application:
-
----
-
 ## Vehicle Management API
 
 This API allows you to manage vehicle data, including uploading vehicle information and images, retrieving vehicle details, and searching for vehicles by various criteria.
@@ -9,30 +5,10 @@ This API allows you to manage vehicle data, including uploading vehicle informat
 ### Base URL
 
 ```
-http://yourdomain.com
+https://vehicle-api-u9p7.onrender.com
 ```
 
 ### Endpoints
-
----
-
-### Upload Vehicle Information and Image
-
-#### `POST /upload/`
-
-Uploads vehicle information along with an image.
-
-#### Request Body Parameters
-
-- `brand` (str, required): The brand of the vehicle.
-- `name` (str, required): The name or model of the vehicle.
-- `type` (str, required): The type of the vehicle.
-- `file_upload` (file, required): The image file of the vehicle.
-- `image_type` (str, required): The type of the image (e.g., JPEG, PNG).
-
-#### Response
-
-- `message` (str): Confirmation message indicating successful upload.
 
 ---
 
@@ -56,7 +32,7 @@ Retrieves information about a specific vehicle by its ID.
 
 #### Path Parameters
 
-- `vehicle_id` (str): The unique identifier of the vehicle.
+-   `vehicle_id` (str): The unique identifier of the vehicle.
 
 #### Response
 
@@ -72,7 +48,7 @@ Retrieves information about vehicles by brand.
 
 #### Path Parameters
 
-- `brand` (str): The brand name of the vehicles to retrieve.
+-   `brand` (str): The brand name of the vehicles to retrieve.
 
 #### Response
 
@@ -88,7 +64,7 @@ Retrieves information about vehicles by type.
 
 #### Path Parameters
 
-- `vehicle_type` (str): The type of vehicles to retrieve.
+-   `vehicle_type` (str): The type of vehicles to retrieve.
 
 #### Response
 
@@ -104,7 +80,7 @@ Searches for vehicles by their model names.
 
 #### Path Parameters
 
-- `vehicle_model` (str): The partial or full name of the vehicle model to search for.
+-   `vehicle_model` (str): The partial or full name of the vehicle model to search for.
 
 #### Response
 
@@ -120,7 +96,7 @@ Retrieves the image of a vehicle by its shortened URL.
 
 #### Path Parameters
 
-- `shortURL` (str): The shortened URL of the vehicle image.
+-   `shortURL` (str): The shortened URL of the vehicle image.
 
 #### Response
 
@@ -130,8 +106,8 @@ Returns the vehicle image in the specified format (JPEG, PNG, etc.).
 
 ### Notes
 
-- All endpoints support CORS headers for cross-origin requests.
-- Errors are returned with appropriate HTTP status codes and error messages.
+-   All endpoints support CORS headers for cross-origin requests.
+-   Errors are returned with appropriate HTTP status codes and error messages.
 
 ---
 

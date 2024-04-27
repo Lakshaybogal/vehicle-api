@@ -1,15 +1,20 @@
 from botocore.endpoint import uuid
-from fastapi import Request, FastAPI, File, UploadFile, Body, HTTPException
+from fastapi import Request, FastAPI, File, UploadFile, Body, HTTPException,Response
+# from fastapi.openapi.models import Respon
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from boto3.dynamodb.conditions import Key, Attr
 import base64
-import boto3
 from dotenv import load_dotenv
 import os
-load_dotenv()
-app = FastAPI()
+from .db.main import get_db
+from .modules.urlshortner import shorten_url
+import io
+from PIL import Image
+import  binascii
 
+app = FastAPI()
+table = get_db()
 origins = ["*"]
 app.add_middleware(
     CORSMiddleware,
@@ -18,10 +23,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-dynamodb = boto3.resource('dynamodb', aws_access_key_id =  os.getenv("ACCESS_KEY"),
-aws_secret_access_key = os.getenv("SECRET_KEY"), region_name='ap-south-1')
-table = dynamodb.Table('vehicles')
 
 @app.get('/')
 async def greet():
@@ -52,6 +53,7 @@ async def upload_vehicle(
                 'vehicle_no': vehicle_no,
                 'vehicle_model': name.lower(),
                 'vehicle_image': encoded_image,
+                'vehicle_image_url' : shorten_url(encoded_image),
                 'vehicle_brand': brand.lower(),
                 'vehicle_type': type.lower(),
                 'image_type': image_type.lower()
@@ -103,5 +105,16 @@ async def search_vehicles_by_name(vehicle_model: str):
             FilterExpression=Attr('vehicle_model').begins_with(vehicle_model.lower())
         )
         return {'data': response['Items'], 'count': len(response['Items'])}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get('/vehicle/image/{shortURL}')
+async def get_image(shortURL: str):
+    try:
+        response = table.scan(FilterExpression=Attr('vehicle_image_url').eq(shortURL))
+        item = response['Items'][0]
+        data_url = item["vehicle_image"]
+        image_data = base64.b64decode(data_url, validate=True)
+        return Response(content=image_data, media_type="image/png")  # Adjust media_type as per your image type
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

@@ -45,7 +45,7 @@ async def upload_vehicle(
                 'vehicle_no': vehicle_no,
                 'vehicle_model': name.lower(),
                 'vehicle_image': encoded_image,
-                'vehicle_image_url' : getenv("URL") + '/vehicle/image/' + shorten_url(encoded_image),
+                'vehicle_image_url' : shorten_url(encoded_image),
                 'vehicle_brand': brand.lower(),
                 'vehicle_type': type.lower(),
                 'image_type': image_type.lower()
@@ -66,7 +66,10 @@ async def get_all_vehicles():
                                                         "#vt": "vehicle_type",
                                                         "#iu": "vehicle_image_url"})
         items = response['Items']
-        return items
+        url_prefix = getenv("URL") + '/vehicle/image/'
+        for item in items:
+            item['vehicle_image_url'] = url_prefix + item['vehicle_image_url']
+        return {'data': items, 'count': len(response['Items'])}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -96,7 +99,11 @@ async def get_vehicles_by_brand(brand: str):
                                       "#vb": "vehicle_brand",
                                       "#vt": "vehicle_type",
                                       "#iu": "vehicle_image_url"})
-        return {'data': response['Items'], 'count': len(response['Items'])}
+        items = response['Items']
+        url_prefix = getenv("URL") + '/vehicle/image/'
+        for item in items:
+            item['vehicle_image_url'] = url_prefix + item['vehicle_image_url']
+        return {'data': items, 'count': len(response['Items'])}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -111,7 +118,11 @@ async def get_vehicles_by_type(vehicle_type: str):
                                       "#vb": "vehicle_brand",
                                       "#vt": "vehicle_type",
                                       "#iu": "vehicle_image_url"})
-        return {'data': response['Items'], 'count': len(response['Items'])}
+        items = response['Items']
+        url_prefix = getenv("URL") + '/vehicle/image/'
+        for item in items:
+            item['vehicle_image_url'] = url_prefix + item['vehicle_image_url']
+        return {'data':  items, 'count': len(response['Items'])}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -126,7 +137,11 @@ async def search_vehicles_by_name(vehicle_model: str):
                                       "#vb": "vehicle_brand",
                                       "#vt": "vehicle_type",
                                       "#iu": "vehicle_image_url"})
-        return {'data': response['Items'], 'count': len(response['Items'])}
+        items = response['Items']
+        url_prefix = getenv("URL") + '/vehicle/image/'
+        for item in items:
+            item['vehicle_image_url'] = url_prefix + item['vehicle_image_url']
+        return {'data':  items, 'count': len(response['Items'])}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

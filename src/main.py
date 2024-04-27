@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from boto3.dynamodb.conditions import Key, Attr
 import base64
-import os
+from os import getenv
 from .db.main import get_db
 from .modules.urlshortner import shorten_url
 
@@ -45,7 +45,7 @@ async def upload_vehicle(
                 'vehicle_no': vehicle_no,
                 'vehicle_model': name.lower(),
                 'vehicle_image': encoded_image,
-                'vehicle_image_url' : shorten_url(encoded_image),
+                'vehicle_image_url' : getenv("URL") + '/vehicle/image/' + shorten_url(encoded_image),
                 'vehicle_brand': brand.lower(),
                 'vehicle_type': type.lower(),
                 'image_type': image_type.lower()
@@ -58,13 +58,13 @@ async def upload_vehicle(
 @app.get("/vehicle/all/")
 async def get_all_vehicles():
     try:
-        response = table.scan(ProjectionExpression="#vi, #vn, #vm, #vb, #vt, #it",
+        response = table.scan(ProjectionExpression="#vi, #vn, #vm, #vb, #vt, #iu",
                               ExpressionAttributeNames={"#vi": "vehicle_id",
                                                         "#vn": "vehicle_no",
                                                         "#vm": "vehicle_model",
                                                         "#vb": "vehicle_brand",
                                                         "#vt": "vehicle_type",
-                                                        "#it": "image_type"})
+                                                        "#iu": "vehicle_image_url"})
         items = response['Items']
         return items
     except Exception as e:
@@ -74,13 +74,13 @@ async def get_all_vehicles():
 async def get_vehicle_by_id(vehicle_id: str):
     try:
         response = table.get_item(Key={'vehicle_id': vehicle_id},
-                                  ProjectionExpression="#vi, #vn, #vm, #vb, #vt, #it",
+                                  ProjectionExpression="#vi, #vn, #vm, #vb, #vt, #iu",
                                   ExpressionAttributeNames={"#vi": "vehicle_id",
                                                             "#vn": "vehicle_no",
                                                             "#vm": "vehicle_model",
                                                             "#vb": "vehicle_brand",
                                                             "#vt": "vehicle_type",
-                                                            "#it": "image_type"})
+                                                            "#iu": "vehicle_image_url"})
         return response.get('Item', {})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -88,14 +88,14 @@ async def get_vehicle_by_id(vehicle_id: str):
 @app.get("/vehicle/brand/{brand}")
 async def get_vehicles_by_brand(brand: str):
     try:
-        response = table.scan(FilterExpression=Attr('vehicle_brand').begins_with(brand.lower()),
-                              ProjectionExpression="#vi, #vn, #vm, #vb, #vt, #it",
-                              ExpressionAttributeNames={"#vi": "vehicle_id",
-                                                        "#vn": "vehicle_no",
-                                                        "#vm": "vehicle_model",
-                                                        "#vb": "vehicle_brand",
-                                                        "#vt": "vehicle_type",
-                                                        "#it": "image_type"})
+        response = table.scan(FilterExpression=Attr('vehicle_brand').contains(brand.lower()),
+            ProjectionExpression="#vi, #vn, #vm, #vb, #vt, #iu",
+            ExpressionAttributeNames={"#vi": "vehicle_id",
+                                      "#vn": "vehicle_no",
+                                      "#vm": "vehicle_model",
+                                      "#vb": "vehicle_brand",
+                                      "#vt": "vehicle_type",
+                                      "#iu": "vehicle_image_url"})
         return {'data': response['Items'], 'count': len(response['Items'])}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -104,32 +104,31 @@ async def get_vehicles_by_brand(brand: str):
 async def get_vehicles_by_type(vehicle_type: str):
     try:
         response = table.scan(FilterExpression=Key('vehicle_type').eq(vehicle_type.lower()),
-                              ProjectionExpression="#vi, #vn, #vm, #vb, #vt, #it",
-                              ExpressionAttributeNames={"#vi": "vehicle_id",
-                                                        "#vn": "vehicle_no",
-                                                        "#vm": "vehicle_model",
-                                                        "#vb": "vehicle_brand",
-                                                        "#vt": "vehicle_type",
-                                                        "#it": "image_type"})
+            ProjectionExpression="#vi, #vn, #vm, #vb, #vt, #iu",
+            ExpressionAttributeNames={"#vi": "vehicle_id",
+                                      "#vn": "vehicle_no",
+                                      "#vm": "vehicle_model",
+                                      "#vb": "vehicle_brand",
+                                      "#vt": "vehicle_type",
+                                      "#iu": "vehicle_image_url"})
         return {'data': response['Items'], 'count': len(response['Items'])}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/vehicle/search/model/{vehicle_model}")
+@app.get("/vehicle/model/{vehicle_model}")
 async def search_vehicles_by_name(vehicle_model: str):
     try:
-        response = table.scan(FilterExpression=Attr('vehicle_model').begins_with(vehicle_model.lower()),
-                              ProjectionExpression="#vi, #vn, #vm, #vb, #vt, #it",
-                              ExpressionAttributeNames={"#vi": "vehicle_id",
-                                                        "#vn": "vehicle_no",
-                                                        "#vm": "vehicle_model",
-                                                        "#vb": "vehicle_brand",
-                                                        "#vt": "vehicle_type",
-                                                        "#it": "image_type"})
+        response = table.scan(FilterExpression=Attr('vehicle_model').contains(vehicle_model.lower()),
+            ProjectionExpression="#vi, #vn, #vm, #vb, #vt, #iu",
+            ExpressionAttributeNames={"#vi": "vehicle_id",
+                                      "#vn": "vehicle_no",
+                                      "#vm": "vehicle_model",
+                                      "#vb": "vehicle_brand",
+                                      "#vt": "vehicle_type",
+                                      "#iu": "vehicle_image_url"})
         return {'data': response['Items'], 'count': len(response['Items'])}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @app.get('/vehicle/image/{shortURL}')
 async def get_image(shortURL: str):

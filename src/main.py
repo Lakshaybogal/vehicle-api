@@ -115,6 +115,6 @@ async def get_image(shortURL: str):
         item = response['Items'][0]
         data_url = item["vehicle_image"]
         image_data = base64.b64decode(data_url, validate=True)
-        return Response(content=image_data, media_type=f"image/{item["image_type"]}")
+        return Response(content=image_data, media_type=f"image/{item['image_type']}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
